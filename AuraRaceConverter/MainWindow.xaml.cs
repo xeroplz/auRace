@@ -127,7 +127,7 @@ namespace AuraRaceConverter
 
 				// State
 				var stateTemp = race.GetAttribute("IsGoodNPC");
-				var state = "";
+				var state = "0";
 				if (stateTemp == "false")
 				{
 					state = "0x80000000";
@@ -138,7 +138,7 @@ namespace AuraRaceConverter
 				}
 
 				// Stand
-				var stand = "0";
+				var stand = "0x03";
 				var isKnockBack = race.GetAttribute("ShovedEnable");
 				var isKnockDown = race.GetAttribute("BlowAwayEnable");
 				if ((isKnockBack == "true") && (isKnockDown == "false"))
