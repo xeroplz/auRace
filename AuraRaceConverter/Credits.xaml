@@ -10,6 +10,7 @@
         <TextBlock x:Name="credit1" Margin="46,15,46,214" TextWrapping="Wrap" TextAlignment="Center" FontSize="15" Text="- XERO" Foreground="White"/>
         <TextBlock x:Name="credit1sub" Margin="46,28,46,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="27" TextAlignment="Center" FontSize="10" Foreground="White"><Run Text=""/><LineBreak/><Run Text="aka Petch"/><LineBreak/><Run/><LineBreak/><Run/></TextBlock>
         <TextBlock x:Name="credit2" Margin="46,60,46,178" TextWrapping="Wrap" TextAlignment="Center" FontSize="15" Text="- QewQew" Foreground="White"/>
+        <TextBlock x:Name="liscenseText" Margin="10,218,10,10" TextWrapping="Wrap" TextAlignment="Center" FontSize="10" Foreground="White"><Run Text="Copyright (c) Aura development team"/><LineBreak/><Run Text="Licensed under GNU GPL"/></TextBlock>
 
     </Grid>
 </Window>

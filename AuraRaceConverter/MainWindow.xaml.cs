@@ -183,6 +183,9 @@ namespace AuraRaceConverter
 				var sizeMax = "0";
 				var combatPower = "0";
 				var colorHex = "0";
+				var c1 = "0x808080";
+				var c2 = "0x808080";
+				var c3 = "0x808080";
 				var exp = "0";
 				var goldMin = "0";
 				var goldMax = "0";
@@ -221,6 +224,11 @@ namespace AuraRaceConverter
 						sizeMin = monster.GetAttribute("SizeMin");
 						sizeMax = monster.GetAttribute("SizeMax");
 
+						// Eye Color
+						// Eye Type
+						// Mouth Type
+						// Skin Color
+
 						combatPower = monster.GetAttribute("CombatPower2");
 						colorHex = monster.GetAttribute("Color_Hex");
 
@@ -233,6 +241,36 @@ namespace AuraRaceConverter
 						elementFire = monster.GetAttribute("ElementFire");
 						elementIce = monster.GetAttribute("ElementIce");
 					}
+				}
+
+				// Variable Color not Implemented
+				/*
+				if (colorHex.Contains("|")) // Color may vary
+				{
+
+				}
+				*/
+
+				// Color Hex
+				if (colorHex.Contains("c1"))
+				{
+					var match1 = Regex.Match(colorHex, "c1:([a-f0-9]+)", RegexOptions.IgnoreCase);
+					if (match1.Success)
+						c1 = "0x" + match1.Groups[1].Value;
+				}
+
+				if (colorHex.Contains("c2")) // Between c2:[x] c3
+				{
+					var match2 = Regex.Match(colorHex, "c2:([a-f0-9]+)", RegexOptions.IgnoreCase);
+					if (match2.Success)
+						c2 = "0x" + match2.Groups[1].Value;
+				}
+
+				if (colorHex.Contains("c3")) // Between c3:[x]"
+				{
+					var match3 = Regex.Match(colorHex, "c3:([a-f0-9]+)", RegexOptions.IgnoreCase);
+					if (match3.Success)
+						c3 = "0x" + match3.Groups[1].Value;
 				}
 
 				// Create String
@@ -267,6 +305,32 @@ namespace AuraRaceConverter
 					"splashDamage: " + splashDamage + ", " +
 					"stand: " + stand + ", " +
 					"ai: \"none\"" + ", " + // Ai none until specified
+					"color1: " + c1 + ", " +
+					"color2: " + c2 + ", " +
+					"color3: " + c3 + ", " +
+					"sizeMin: " + sizeMin + ", " +
+					"sizeMax: " + sizeMax + ", " +
+					// Eye Color
+					// Eye Type
+					// Mouth Type
+					// Skin Color
+					"level: " + level + ", " +
+					"str: " + strength + ", " +
+					"int: " + intelligence + ", " +
+					"dex: " + dexterity + ", " +
+					"will: " + will + ", " +
+					"luck: " + luck + ", " +
+					"cp: " + combatPower + ", " +
+					"life: " + life + ", " +
+					"mana: " + mana + ", " +
+					"stamina: " + stamina + ", " +
+					"elementPhysical: " + elementPhysical + ", " +
+					"elementLightning: " + elementLightning + ", " +
+					"elementFire: " + elementFire + ", " +
+					"elementIce: " + elementIce + ", " +
+					"exp: " + exp + ", " +
+					"goldMin: " + goldMin + ", " +
+					"goldMax: " + goldMax + ", " +
 					"},");
 
 				lines.Add(raceText);
