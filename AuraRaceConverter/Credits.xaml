@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AuraRaceConverter"
         mc:Ignorable="d"
-        Title="Credits" Height="300" Width="300">
+        Title="Credits" Height="300" Width="300" Background="#FF325778">
     <Grid>
-        <TextBlock x:Name="textBlock" Margin="46,80,46,135" TextWrapping="Wrap" TextAlignment="Center" FontSize="40" Text="XERO"/>
-        <TextBlock x:Name="textBlock_Copy" Margin="46,134,46,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="47" TextAlignment="Center" FontSize="15"><Run Text=""/><LineBreak/><Run Text="aka Petch"/><LineBreak/><Run/><LineBreak/><Run/></TextBlock>
+        <TextBlock x:Name="credit1" Margin="46,15,46,214" TextWrapping="Wrap" TextAlignment="Center" FontSize="15" Text="- XERO" Foreground="White"/>
+        <TextBlock x:Name="credit1sub" Margin="46,28,46,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="27" TextAlignment="Center" FontSize="10" Foreground="White"><Run Text=""/><LineBreak/><Run Text="aka Petch"/><LineBreak/><Run/><LineBreak/><Run/></TextBlock>
+        <TextBlock x:Name="credit2" Margin="46,60,46,178" TextWrapping="Wrap" TextAlignment="Center" FontSize="15" Text="- QewQew" Foreground="White"/>
 
     </Grid>
 </Window>

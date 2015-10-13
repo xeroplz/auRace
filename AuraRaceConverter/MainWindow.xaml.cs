@@ -83,9 +83,8 @@ namespace AuraRaceConverter
 				return;
 			}
 
-			List<string> lines = new List<string>();
-
 			successLabel.Content = "Working...";
+			List<string> lines = new List<string>();
 
 			// Get Races
 			var races = raceXML.GetElementsByTagName("Race");

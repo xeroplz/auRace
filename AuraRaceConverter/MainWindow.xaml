@@ -5,15 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AuraRaceConverter"
         mc:Ignorable="d"
-        Title="Aura Race Converter" Height="450" Width="720" Background="Gray">
+        Title="Aura Race Converter" Height="450" Width="720" Background="#FF325778">
     <Grid>
         <!-- Credits Button -->
-        <Button x:Name="creditsButton" Content="Credits" HorizontalAlignment="Left" Margin="627,385,0,0" VerticalAlignment="Top" Width="75" Background="Gray" BorderBrush="Gray" FontSize="14.667" Foreground="White" Click="creditsButton_Click"/>
+        <Button x:Name="creditsButton" Content="Credits" HorizontalAlignment="Left" Margin="627,385,0,0" VerticalAlignment="Top" Width="75" Background="#FF325778" BorderBrush="Gray" FontSize="14.667" Foreground="White" Click="creditsButton_Click"/>
 
         <!-- Start -->
-        <TextBlock x:Name="instructionsText" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="14.667" Width="692" Height="90"><Run Text="Instructions:"/><LineBreak/><Run Text="1. Have "/><Run Text="race.xml" TextDecorations="Underline"/><Run Text=", "/><Run Text="monster.xml" TextDecorations="Underline"/><Run Text=", and "/><Run Text="raceNA.xml" TextDecorations="Underline"/><Run Text=" in the same folder as this program."/><LineBreak/><Run Text="2. Press start"/><LineBreak/><Run Text="3. Use generated file."/></TextBlock>
-        <Button x:Name="start_Button" Content="START" Margin="185,165,184,164" BorderBrush="White" Background="Gray" FontSize="53.333" Foreground="White" Click="start_Button_Click"/>
-        <Label x:Name="successLabel" HorizontalContentAlignment="Center" Content="" HorizontalAlignment="Left" Margin="307,290,0,0" VerticalAlignment="Top" Width="104" Foreground="White" FontSize="14.667"/>
+        <TextBlock x:Name="instructionsText" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="14.667" Width="692" Height="90"><Run Text="Instructions:"/><LineBreak/><Run Text="1. Have "/><Run Text="race.xml" TextDecorations="Underline"/><Run Text=", "/><Run Text="monster.xml" TextDecorations="Underline"/><Run Text=", and "/><Run Text="raceNA.xml" TextDecorations="Underline"/><Run Text=" in the same folder as this program."/><LineBreak/><Run Text="2. Press start."/><LineBreak/><Run Text="3. Use generated file."/></TextBlock>
+        <Button x:Name="start_Button" Content="START" Margin="185,220,185,109" BorderBrush="White" Background="#FF325778" FontSize="53.333" Foreground="White" Click="start_Button_Click"/>
+        <Label x:Name="successLabel" HorizontalContentAlignment="Center" Content="" Margin="304,315,304,0" VerticalAlignment="Top" Foreground="White" FontSize="14.667"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,351,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Height="58" Foreground="White" FontSize="13.333"><Run Text="Note:"/><LineBreak/><Run Text="race.xml must be G13 official."/><LineBreak/><Run Text="raceNA.xml must be North America current."/></TextBlock>
+        <Image x:Name="image" Source="./ExtraResources/auralogo.png" Margin="256,100,256,0" Height="98" VerticalAlignment="Top"/>
     </Grid>
 </Window>
