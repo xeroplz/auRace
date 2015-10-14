@@ -38,47 +38,27 @@ namespace AuraRaceConverter
 		{
 			var directory = Directory.GetCurrentDirectory().ToString();
 
-			// Check race.xml
+			// Get race.xml
 			XmlDocument raceXML = new XmlDocument();
 			var raceXMLPath = directory + "\\race.xml";
 
-			try
-			{
-				raceXML.Load(raceXMLPath);
-			}
-			catch (Exception)
-			{
-				string errorMessage = string.Format("race.xml could not be found.");
-				MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-				return;
-			}
-
-			// Check raceNA.xml
+			// Get raceNA.xml
 			XmlDocument raceNAXML = new XmlDocument();
 			var raceNAXMLPath = directory + "\\raceNA.xml";
 
-			try
-			{
-				raceNAXML.Load(raceNAXMLPath);
-			}
-			catch (Exception)
-			{
-				string errorMessage = string.Format("raceNA.xml could not be found.");
-				MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-				return;
-			}
-
-			// Check monster.xml
+			// Get monster.xml
 			XmlDocument monsterXML = new XmlDocument();
 			var monsterXMLPath = directory + "\\monster.xml";
 
 			try
 			{
+				raceXML.Load(raceXMLPath);
+				raceNAXML.Load(raceNAXMLPath);
 				monsterXML.Load(monsterXMLPath);
 			}
 			catch (Exception)
 			{
-				string errorMessage = string.Format("monster.xml could not be found.");
+				string errorMessage = string.Format("One or more of the required files could not be found.");
 				MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
 			}
@@ -86,10 +66,23 @@ namespace AuraRaceConverter
 			successLabel.Content = "Working...";
 			List<string> lines = new List<string>();
 
+			// Node Lists containing other XML values
+			// ---------------------------------
+
+			// Races NA
+			var racesNA = raceNAXML.GetElementsByTagName("Race");
+
+			// Monster
+			var monsters = monsterXML.GetElementsByTagName("Monster");
+
+			// ---------------------------------
+
 			// Get Races
 			var races = raceXML.GetElementsByTagName("Race");
 			foreach (XmlElement race in races)
 			{
+				// Set Race Variables
+				#region raceData
 				var id = race.GetAttribute("ID");
 				var name = race.GetAttribute("EnglishName");
 				var group = race.GetAttribute("RaceDesc");
@@ -101,61 +94,13 @@ namespace AuraRaceConverter
 				var splashRadius = race.GetAttribute("SplashRadius");
 				var splashAngle = race.GetAttribute("SplashAngle");
 				var splashDamage = race.GetAttribute("SplashDamage");
-
-				// Vehicle Type
 				var extraData = race.GetAttribute("ExtraData");
 				var vehicleType = "0";
-				if (extraData != "")
-				{
-					if (extraData.Contains("vehicle type"))
-					{
-						vehicleType = Regex.Match(extraData, "vehicle type=\"(.*)\"").Groups[1].Value;
-					}
-				}
-
-				// Get RunSpeedFactor from raceNA.xml
 				var runSpeedFactor = "0";
-				var racesNA = raceNAXML.GetElementsByTagName("Race");
-				foreach (XmlElement raceNA in racesNA)
-				{
-					if (id == raceNA.GetAttribute("ID")) // If same race in both files
-					{
-						runSpeedFactor = raceNA.GetAttribute("RunSpeedFactor");
-					}
-				}
-
-				// State
-				var stateTemp = race.GetAttribute("IsGoodNPC");
 				var state = "0";
-				if (stateTemp == "false")
-				{
-					state = "0x80000000";
-				}
-				else
-				{
-					state = "0xA0000000";
-				}
-
-				// Stand
 				var stand = "0x03";
-				var isKnockBack = race.GetAttribute("ShovedEnable");
-				var isKnockDown = race.GetAttribute("BlowAwayEnable");
-				if ((isKnockBack == "true") && (isKnockDown == "false"))
-				{
-					stand = "0x01";
-				}
-				else if ((isKnockBack == "false") && (isKnockDown == "true"))
-				{
-					stand = "0x02";
-				}
-				else if ((isKnockBack == "true") && (isKnockDown == "true"))
-				{
-					stand = "0x03";
-				}
-
 				var invWidth = race.GetAttribute("InventorySizeX");
 				var invHeight = race.GetAttribute("InventorySizeY");
-
 				var attackMinBase = "0";
 				var attackMaxBase = "0";
 				var attackMinBaseMod = "0";
@@ -193,53 +138,98 @@ namespace AuraRaceConverter
 				var elementLightning = "0";
 				var elementFire = "0";
 				var elementIce = "0";
+				#endregion
 
-				// Get monster.xml values for above variables
-				var monsters = monsterXML.GetElementsByTagName("Monster");
-				foreach (XmlElement monster in monsters)
+				// Vehicle Type
+				if (extraData != "")
 				{
-					if (id == monster.GetAttribute("RaceID")) // If same race
+					if (extraData.Contains("vehicle type"))
 					{
-						attackMinBase = monster.GetAttribute("AttMin");
-						attackMaxBase = monster.GetAttribute("AttMax");
+						vehicleType = Regex.Match(extraData, "vehicle type=\"(.*)\"").Groups[1].Value;
+					}
+				}
 
-						injuryMinBase = monster.GetAttribute("WAttMin");
-						injuryMaxBase = monster.GetAttribute("WAttMax");
+				// Get RunSpeedFactor from raceNA.xml
+				foreach (XmlElement raceNAMatch in racesNA)
+				{
+					if (id == raceNAMatch.GetAttribute("ID"))
+					{
+						runSpeedFactor = raceNAMatch.GetAttribute("RunSpeedFactor");
+					}
+				}
 
-						level = monster.GetAttribute("Level");
-						strength = monster.GetAttribute("Strength");
-						intelligence = monster.GetAttribute("Intelligence");
-						dexterity = monster.GetAttribute("Dexterity");
-						will = monster.GetAttribute("Will");
-						luck = monster.GetAttribute("Luck");
-						life = monster.GetAttribute("Life");
-						mana = monster.GetAttribute("Mana");
-						stamina = monster.GetAttribute("Stamina");
+				// State
+				var stateTemp = race.GetAttribute("IsGoodNPC");
+				if (stateTemp == "false")
+				{
+					state = "0x80000000";
+				}
+				else
+				{
+					state = "0xA0000000";
+				}
 
-						criticalBase = monster.GetAttribute("Critical");
-						balanceBase = monster.GetAttribute("Rate");
-						defense = monster.GetAttribute("Defense");
-						protection = monster.GetAttribute("Protect");
+				// Stand
+				var isKnockBack = race.GetAttribute("ShovedEnable");
+				var isKnockDown = race.GetAttribute("BlowAwayEnable");
+				if ((isKnockBack == "true") && (isKnockDown == "false"))
+				{
+					stand = "0x01";
+				}
+				else if ((isKnockBack == "false") && (isKnockDown == "true"))
+				{
+					stand = "0x02";
+				}
+				else if ((isKnockBack == "true") && (isKnockDown == "true"))
+				{
+					stand = "0x03";
+				}
 
-						sizeMin = monster.GetAttribute("SizeMin");
-						sizeMax = monster.GetAttribute("SizeMax");
+				// Get monster.xml values for variables
+				foreach (XmlElement monsterMatch in monsters)
+				{
+					if (id == monsterMatch.GetAttribute("ID"))
+					{
+						attackMinBase = monsterMatch.GetAttribute("AttMin");
+						attackMaxBase = monsterMatch.GetAttribute("AttMax");
+
+						injuryMinBase = monsterMatch.GetAttribute("WAttMin");
+						injuryMaxBase = monsterMatch.GetAttribute("WAttMax");
+
+						level = monsterMatch.GetAttribute("Level");
+						strength = monsterMatch.GetAttribute("Strength");
+						intelligence = monsterMatch.GetAttribute("Intelligence");
+						dexterity = monsterMatch.GetAttribute("Dexterity");
+						will = monsterMatch.GetAttribute("Will");
+						luck = monsterMatch.GetAttribute("Luck");
+						life = monsterMatch.GetAttribute("Life");
+						mana = monsterMatch.GetAttribute("Mana");
+						stamina = monsterMatch.GetAttribute("Stamina");
+
+						criticalBase = monsterMatch.GetAttribute("Critical");
+						balanceBase = monsterMatch.GetAttribute("Rate");
+						defense = monsterMatch.GetAttribute("Defense");
+						protection = monsterMatch.GetAttribute("Protect");
+
+						sizeMin = monsterMatch.GetAttribute("SizeMin");
+						sizeMax = monsterMatch.GetAttribute("SizeMax");
 
 						// Eye Color
 						// Eye Type
 						// Mouth Type
 						// Skin Color
 
-						combatPower = monster.GetAttribute("CombatPower2");
-						colorHex = monster.GetAttribute("Color_Hex");
+						combatPower = monsterMatch.GetAttribute("CombatPower2");
+						colorHex = monsterMatch.GetAttribute("Color_Hex");
 
-						exp = monster.GetAttribute("ParticipationExp");
-						goldMin = monster.GetAttribute("BonusMoneyMin");
-						goldMax = monster.GetAttribute("BonusMoneyMax");
+						exp = monsterMatch.GetAttribute("ParticipationExp");
+						goldMin = monsterMatch.GetAttribute("BonusMoneyMin");
+						goldMax = monsterMatch.GetAttribute("BonusMoneyMax");
 
-						elementPhysical = monster.GetAttribute("ElementPhysical");
-						elementLightning = monster.GetAttribute("ElementLightning");
-						elementFire = monster.GetAttribute("ElementFire");
-						elementIce = monster.GetAttribute("ElementIce");
+						elementPhysical = monsterMatch.GetAttribute("ElementPhysical");
+						elementLightning = monsterMatch.GetAttribute("ElementLightning");
+						elementFire = monsterMatch.GetAttribute("ElementFire");
+						elementIce = monsterMatch.GetAttribute("ElementIce");
 					}
 				}
 
