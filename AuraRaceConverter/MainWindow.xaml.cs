@@ -262,8 +262,10 @@ namespace AuraRaceConverter
 						c3 = "0x" + match3.Groups[1].Value;
 				}
 
-
+				// SetFace
 				var setFace = Regex.Match(firstCreateStript, "setface((.*))").Groups[1].Value;
+				// ---------------------------------
+
 				// Eye Color Set
 				if (setFace.Contains("ec:"))
 				{
@@ -275,24 +277,34 @@ namespace AuraRaceConverter
 				// Eye Type Set
 				if (setFace.Contains("et:"))
 				{
-					var eyeTypeMatch = Regex.Match(setFace, "et:(.*) mt:", RegexOptions.IgnoreCase);
-					if (eyeTypeMatch.Success)
-						eyeType = eyeTypeMatch.Groups[1].Value;
+					var eyeTypeMatch = Regex.Match(setFace, @"et:(.*? |.*?\))", RegexOptions.IgnoreCase);
 
-					if (eyeType.Contains('|'))
-						eyeType = eyeType.Replace('|', ',');
+					if (eyeTypeMatch.Success)
+					{
+						eyeType = eyeTypeMatch.Groups[1].Value;
+						eyeType = eyeType.Trim("et: ".ToCharArray());
+
+						if (eyeType.Contains('|'))
+							eyeType = eyeType.Replace('|', ',');
+					}
 				}
 
 				// Mouth Type Set
 				if (setFace.Contains("mt:"))
 				{
-					var mouthTypeMatch = Regex.Match(setFace, "mt:(.*) sc:", RegexOptions.IgnoreCase);
-					if (mouthTypeMatch.Success)
-						mouthType = mouthTypeMatch.Groups[1].Value;
+					var mouthTypeMatch = Regex.Match(setFace, @"mt:(.*? |.*?\))", RegexOptions.IgnoreCase);
 
-					if (mouthType.Contains('|'))
-						mouthType = mouthType.Replace('|', ',');
+					if (mouthTypeMatch.Success)
+					{
+						mouthType = mouthTypeMatch.Groups[1].Value;
+						mouthType = mouthType.Trim("mt: ".ToCharArray());
+
+						if (mouthType.Contains('|'))
+							mouthType = mouthType.Replace('|', ',');
+					}
 				}
+
+				// ---------------------------------
 
 				// Create String
 				var raceText = ("{ " +
@@ -378,6 +390,8 @@ namespace AuraRaceConverter
 					else // Singular version
 						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "mouthType: " + mouthType + ", ");
 				}
+
+				// ---------------------------------
 
 				lines.Add(raceText);
 			}
