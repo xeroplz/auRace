@@ -138,6 +138,10 @@ namespace AuraRaceConverter
 				var elementLightning = "0";
 				var elementFire = "0";
 				var elementIce = "0";
+				var firstCreateStript = race.GetAttribute("FirstCreateStript");
+				var eyeColor = "0";
+				var eyeType = "0";
+				var mouthType = "0";
 				#endregion
 
 				// Vehicle Type
@@ -188,7 +192,7 @@ namespace AuraRaceConverter
 				// Get monster.xml values for variables
 				foreach (XmlElement monsterMatch in monsters)
 				{
-					if (id == monsterMatch.GetAttribute("ID"))
+					if (id == monsterMatch.GetAttribute("RaceID"))
 					{
 						attackMinBase = monsterMatch.GetAttribute("AttMin");
 						attackMaxBase = monsterMatch.GetAttribute("AttMax");
@@ -213,11 +217,6 @@ namespace AuraRaceConverter
 
 						sizeMin = monsterMatch.GetAttribute("SizeMin");
 						sizeMax = monsterMatch.GetAttribute("SizeMax");
-
-						// Eye Color
-						// Eye Type
-						// Mouth Type
-						// Skin Color
 
 						combatPower = monsterMatch.GetAttribute("CombatPower2");
 						colorHex = monsterMatch.GetAttribute("Color_Hex");
@@ -263,6 +262,38 @@ namespace AuraRaceConverter
 						c3 = "0x" + match3.Groups[1].Value;
 				}
 
+
+				var setFace = Regex.Match(firstCreateStript, "setface((.*))").Groups[1].Value;
+				// Eye Color Set
+				if (setFace.Contains("ec:"))
+				{
+					var eyeColorMatch = Regex.Match(setFace, "ec:([a-f0-9]+)", RegexOptions.IgnoreCase);
+					if (eyeColorMatch.Success)
+						eyeColor = eyeColorMatch.Groups[1].Value;
+				}
+
+				// Eye Type Set
+				if (setFace.Contains("et:"))
+				{
+					var eyeTypeMatch = Regex.Match(setFace, "et:(.*) mt:", RegexOptions.IgnoreCase);
+					if (eyeTypeMatch.Success)
+						eyeType = eyeTypeMatch.Groups[1].Value;
+
+					if (eyeType.Contains('|'))
+						eyeType = eyeType.Replace('|', ',');
+				}
+
+				// Mouth Type Set
+				if (setFace.Contains("mt:"))
+				{
+					var mouthTypeMatch = Regex.Match(setFace, "mt:(.*) sc:", RegexOptions.IgnoreCase);
+					if (mouthTypeMatch.Success)
+						mouthType = mouthTypeMatch.Groups[1].Value;
+
+					if (mouthType.Contains('|'))
+						mouthType = mouthType.Replace('|', ',');
+				}
+
 				// Create String
 				var raceText = ("{ " +
 					"id: " + id + ", " +
@@ -300,8 +331,6 @@ namespace AuraRaceConverter
 					"color3: " + c3 + ", " +
 					"sizeMin: " + sizeMin + ", " +
 					"sizeMax: " + sizeMax + ", " +
-					// Eye Color
-					// Eye Type
 					// Mouth Type
 					// Skin Color
 					"level: " + level + ", " +
@@ -322,6 +351,33 @@ namespace AuraRaceConverter
 					"goldMin: " + goldMin + ", " +
 					"goldMax: " + goldMax + ", " +
 					"},");
+
+				// Optional Values
+				// ---------------------------------
+
+				// Eye Color
+				var sizeMaxString = "sizeMax: " + sizeMax + ", ";
+				var sizeMaxIndex = raceText.IndexOf(sizeMaxString);
+				if (eyeColor != "0")
+					raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "eyeColor: " + eyeColor + ", ");
+
+				// Eye Type
+				if (eyeType != "0")
+				{
+					if (eyeType.Contains(",")) // Create selectable version
+						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "eyeType: [" + eyeType + "], ");
+					else // Singular version
+						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "eyeType: " + eyeType + ", ");
+				}
+
+				// Mouth Type
+				if (mouthType != "0")
+				{
+					if (mouthType.Contains(",")) // Create selectable version
+						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "mouthType: [" + mouthType + "], ");
+					else // Singular version
+						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "mouthType: " + mouthType + ", ");
+				}
 
 				lines.Add(raceText);
 			}
