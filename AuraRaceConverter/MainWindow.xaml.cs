@@ -50,7 +50,7 @@ namespace AuraRaceConverter
 			XmlDocument monsterXML = new XmlDocument();
 			var monsterXMLPath = directory + "\\monster.xml";
 
-			try
+			try // Load XML files
 			{
 				raceXML.Load(raceXMLPath);
 				raceNAXML.Load(raceNAXMLPath);
@@ -60,10 +60,10 @@ namespace AuraRaceConverter
 			{
 				string errorMessage = string.Format("One or more of the required files could not be found.");
 				MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				successLabel.Content = "Failed";
 				return;
 			}
 
-			successLabel.Content = "Working...";
 			List<string> lines = new List<string>();
 
 			// Node Lists containing other XML values
@@ -86,7 +86,7 @@ namespace AuraRaceConverter
 				var id = race.GetAttribute("ID");
 				var name = race.GetAttribute("EnglishName");
 				var group = race.GetAttribute("RaceDesc");
-				var tags = race.GetAttribute("StringID");
+				var tags = race.GetAttribute("StringID") != "" ? race.GetAttribute("StringID") : "/none/";
 				var gender = race.GetAttribute("Gender");
 				var range = race.GetAttribute("MeleeAttackRange");
 				var attackSpeed = race.GetAttribute("DefaultAttackSpeed");
@@ -123,10 +123,10 @@ namespace AuraRaceConverter
 				var balanceBase = "0";
 				var balanceBaseMod = "0";
 				var defense = "0";
-				var protection = "0";
-				var sizeMin = "0";
-				var sizeMax = "0";
-				var combatPower = "0";
+				var protection = "0.0";
+				var sizeMin = "0.0";
+				var sizeMax = "0.0";
+				var combatPower = "0.0";
 				var colorHex = "0";
 				var c1 = "0x808080";
 				var c2 = "0x808080";
@@ -142,7 +142,13 @@ namespace AuraRaceConverter
 				var eyeColor = "0";
 				var eyeType = "0";
 				var mouthType = "0";
+				var skinColor = "0";
+				var faceType = "0";
 				#endregion
+
+				// Skip Empty Value Line
+				if (id == "")
+					goto Skip;
 
 				// Vehicle Type
 				if (extraData != "")
@@ -210,25 +216,25 @@ namespace AuraRaceConverter
 						mana = monsterMatch.GetAttribute("Mana");
 						stamina = monsterMatch.GetAttribute("Stamina");
 
-						criticalBase = monsterMatch.GetAttribute("Critical");
+						criticalBase = monsterMatch.GetAttribute("Critical") != "" ? monsterMatch.GetAttribute("Critical") : "0";
 						balanceBase = monsterMatch.GetAttribute("Rate");
 						defense = monsterMatch.GetAttribute("Defense");
-						protection = monsterMatch.GetAttribute("Protect");
+						protection = string.Format("{0:F1}", double.Parse(monsterMatch.GetAttribute("Protect")));
 
-						sizeMin = monsterMatch.GetAttribute("SizeMin");
-						sizeMax = monsterMatch.GetAttribute("SizeMax");
+						sizeMin = monsterMatch.GetAttribute("SizeMin") != "" ? string.Format("{0:F1}", double.Parse(monsterMatch.GetAttribute("SizeMin"))) : "0";
+						sizeMax = monsterMatch.GetAttribute("SizeMax") != "" ? string.Format("{0:F1}", double.Parse(monsterMatch.GetAttribute("SizeMax"))) : "0";
 
-						combatPower = monsterMatch.GetAttribute("CombatPower2");
+						combatPower = string.Format("{0:F1}", double.Parse(monsterMatch.GetAttribute("CombatPower2")));
 						colorHex = monsterMatch.GetAttribute("Color_Hex");
 
-						exp = monsterMatch.GetAttribute("ParticipationExp");
-						goldMin = monsterMatch.GetAttribute("BonusMoneyMin");
-						goldMax = monsterMatch.GetAttribute("BonusMoneyMax");
+						exp = monsterMatch.GetAttribute("ParticipationExp") != "" ? monsterMatch.GetAttribute("ParticipationExp") : "0";
+						goldMin = monsterMatch.GetAttribute("BonusMoneyMin") != "" ? monsterMatch.GetAttribute("BonusMoneyMin") : "0";
+						goldMax = monsterMatch.GetAttribute("BonusMoneyMax") != "" ? monsterMatch.GetAttribute("BonusMoneyMax") : "0";
 
-						elementPhysical = monsterMatch.GetAttribute("ElementPhysical");
-						elementLightning = monsterMatch.GetAttribute("ElementLightning");
-						elementFire = monsterMatch.GetAttribute("ElementFire");
-						elementIce = monsterMatch.GetAttribute("ElementIce");
+						elementPhysical = monsterMatch.GetAttribute("ElementPhysical") != "" ? monsterMatch.GetAttribute("ElementPhysical") : "0";
+						elementLightning = monsterMatch.GetAttribute("ElementLightning") != "" ? monsterMatch.GetAttribute("ElementLightning") : "0";
+						elementFire = monsterMatch.GetAttribute("ElementFire") != "" ? monsterMatch.GetAttribute("ElementFire") : "0";
+						elementIce = monsterMatch.GetAttribute("ElementIce") != "" ? monsterMatch.GetAttribute("ElementIce") : "0";
 					}
 				}
 
@@ -263,9 +269,8 @@ namespace AuraRaceConverter
 				}
 
 				// SetFace
-				var setFace = Regex.Match(firstCreateStript, "setface((.*))").Groups[1].Value;
+				var setFace = Regex.Match(firstCreateStript, @"setface(.*?\))").Groups[1].Value;
 				// ---------------------------------
-
 				// Eye Color Set
 				if (setFace.Contains("ec:"))
 				{
@@ -282,7 +287,7 @@ namespace AuraRaceConverter
 					if (eyeTypeMatch.Success)
 					{
 						eyeType = eyeTypeMatch.Groups[1].Value;
-						eyeType = eyeType.Trim("et: ".ToCharArray());
+						eyeType = eyeType.Trim("et: )".ToCharArray());
 
 						if (eyeType.Contains('|'))
 							eyeType = eyeType.Replace('|', ',');
@@ -297,13 +302,42 @@ namespace AuraRaceConverter
 					if (mouthTypeMatch.Success)
 					{
 						mouthType = mouthTypeMatch.Groups[1].Value;
-						mouthType = mouthType.Trim("mt: ".ToCharArray());
+						mouthType = mouthType.Trim("mt: )".ToCharArray());
 
 						if (mouthType.Contains('|'))
 							mouthType = mouthType.Replace('|', ',');
 					}
 				}
 
+				// Skin Color Set
+				if (setFace.Contains("sc:"))
+				{
+					var skinColorMatch = Regex.Match(setFace, @"sc:(.*? |.*?\))", RegexOptions.IgnoreCase);
+
+					if (skinColorMatch.Success)
+					{
+						skinColor = skinColorMatch.Groups[1].Value;
+						skinColor = skinColor.Trim("sc: )".ToCharArray());
+
+						if (skinColor.Contains('|'))
+							skinColor = skinColor.Replace('|', ',');
+					}
+				}
+
+				// Face Type Set - To be used in Equips
+				if (setFace.Contains("ft:"))
+				{
+					var faceTypeMatch = Regex.Match(setFace, @"ft:(.*? |.*?\))", RegexOptions.IgnoreCase);
+
+					if (faceTypeMatch.Success)
+					{
+						faceType = faceTypeMatch.Groups[1].Value;
+						faceType = faceType.Trim("mt: )".ToCharArray());
+
+						if (faceType.Contains('|'))
+							faceType = faceType.Replace('|', ',');
+					}
+				}
 				// ---------------------------------
 
 				// Create String
@@ -355,18 +389,19 @@ namespace AuraRaceConverter
 					"life: " + life + ", " +
 					"mana: " + mana + ", " +
 					"stamina: " + stamina + ", " +
+					"defense: " + defense + ", " +
+					"protection: " + protection + ", " +
 					"elementPhysical: " + elementPhysical + ", " +
 					"elementLightning: " + elementLightning + ", " +
 					"elementFire: " + elementFire + ", " +
 					"elementIce: " + elementIce + ", " +
 					"exp: " + exp + ", " +
 					"goldMin: " + goldMin + ", " +
-					"goldMax: " + goldMax + ", " +
+					"goldMax: " + goldMax + " " +
 					"},");
 
 				// Optional Values
 				// ---------------------------------
-
 				// Eye Color
 				var sizeMaxString = "sizeMax: " + sizeMax + ", ";
 				var sizeMaxIndex = raceText.IndexOf(sizeMaxString);
@@ -391,9 +426,20 @@ namespace AuraRaceConverter
 						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "mouthType: " + mouthType + ", ");
 				}
 
+				// Skin Color
+				if (skinColor != "0")
+				{
+					if (skinColor.Contains(",")) // Create selectable version
+						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "skinColor: [" + skinColor + "], ");
+					else // Singular version
+						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "skinColor: " + skinColor + ", ");
+				}
 				// ---------------------------------
 
 				lines.Add(raceText);
+
+				Skip:
+				lines = lines;
 			}
 
 			File.WriteAllLines((directory + "\\races.txt"), lines);
