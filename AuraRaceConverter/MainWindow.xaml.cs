@@ -67,15 +67,11 @@ namespace AuraRaceConverter
 			List<string> lines = new List<string>();
 
 			// Node Lists containing other XML values
-			// ---------------------------------
-
 			// Races NA
 			var racesNA = raceNAXML.GetElementsByTagName("Race");
 
 			// Monster
 			var monsters = monsterXML.GetElementsByTagName("Monster");
-
-			// ---------------------------------
 
 			// Get Races
 			var races = raceXML.GetElementsByTagName("Race");
@@ -182,18 +178,14 @@ namespace AuraRaceConverter
 				// Stand
 				var isKnockBack = race.GetAttribute("ShovedEnable");
 				var isKnockDown = race.GetAttribute("BlowAwayEnable");
-				if ((isKnockBack == "true") && (isKnockDown == "false"))
-				{
+				if ((isKnockBack == "false") && (isKnockDown == "false"))
+					stand = "0x00";
+				else if ((isKnockBack == "true") && (isKnockDown == "false"))
 					stand = "0x01";
-				}
 				else if ((isKnockBack == "false") && (isKnockDown == "true"))
-				{
 					stand = "0x02";
-				}
 				else if ((isKnockBack == "true") && (isKnockDown == "true"))
-				{
 					stand = "0x03";
-				}
 
 				// Get monster.xml values for variables
 				foreach (XmlElement monsterMatch in monsters)
@@ -268,9 +260,8 @@ namespace AuraRaceConverter
 						c3 = "0x" + match3.Groups[1].Value;
 				}
 
-				// SetFace
 				var setFace = Regex.Match(firstCreateStript, @"setface(.*?\))").Groups[1].Value;
-				// ---------------------------------
+
 				// Eye Color Set
 				if (setFace.Contains("ec:"))
 				{
@@ -338,7 +329,6 @@ namespace AuraRaceConverter
 							faceType = faceType.Replace('|', ',');
 					}
 				}
-				// ---------------------------------
 
 				// Create String
 				var raceText = ("{ " +
@@ -377,8 +367,6 @@ namespace AuraRaceConverter
 					"color3: " + c3 + ", " +
 					"sizeMin: " + sizeMin + ", " +
 					"sizeMax: " + sizeMax + ", " +
-					// Mouth Type
-					// Skin Color
 					"level: " + level + ", " +
 					"str: " + strength + ", " +
 					"int: " + intelligence + ", " +
@@ -401,7 +389,6 @@ namespace AuraRaceConverter
 					"},");
 
 				// Optional Values
-				// ---------------------------------
 				// Eye Color
 				var sizeMaxString = "sizeMax: " + sizeMax + ", ";
 				var sizeMaxIndex = raceText.IndexOf(sizeMaxString);
@@ -434,7 +421,6 @@ namespace AuraRaceConverter
 					else // Singular version
 						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "skinColor: " + skinColor + ", ");
 				}
-				// ---------------------------------
 
 				lines.Add(raceText);
 
