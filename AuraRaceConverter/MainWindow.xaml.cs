@@ -430,6 +430,12 @@ namespace AuraRaceConverter
 					}
 				}
 
+				// Apply Face With SkinColor
+				if (faceType != "0")
+				{
+					equip += "{itemId: " + faceType + ", pocket: 3, color1: " + skinColor + "}, ";
+				}
+
 				// Apply Equipment Formatting if it existed
 				if (equip != "")
 					equip = "[" + equip + "]";
