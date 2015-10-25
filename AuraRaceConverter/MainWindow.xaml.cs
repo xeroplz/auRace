@@ -140,6 +140,7 @@ namespace AuraRaceConverter
 				var mouthType = "0";
 				var skinColor = "0";
 				var faceType = "0";
+				var equip = "";
 				#endregion
 
 				// Skip Empty Value Line
@@ -260,75 +261,178 @@ namespace AuraRaceConverter
 						c3 = "0x" + match3.Groups[1].Value;
 				}
 
-				var setFace = Regex.Match(firstCreateStript, @"setface(.*?\))").Groups[1].Value;
-
-				// Eye Color Set
-				if (setFace.Contains("ec:"))
+				// Set Face
+				var setFaceMatch = Regex.Match(firstCreateStript, @"setface(.*?\))");
+				if (setFaceMatch.Success)
 				{
-					var eyeColorMatch = Regex.Match(setFace, "ec:([a-f0-9]+)", RegexOptions.IgnoreCase);
-					if (eyeColorMatch.Success)
-						eyeColor = eyeColorMatch.Groups[1].Value;
-				}
+					var setFace = setFaceMatch.Groups[1].Value;
 
-				// Eye Type Set
-				if (setFace.Contains("et:"))
-				{
-					var eyeTypeMatch = Regex.Match(setFace, @"et:(.*? |.*?\))", RegexOptions.IgnoreCase);
-
-					if (eyeTypeMatch.Success)
+					// Eye Color Set
+					if (setFace.Contains("ec:"))
 					{
-						eyeType = eyeTypeMatch.Groups[1].Value;
-						eyeType = eyeType.Trim("et: )".ToCharArray());
+						var eyeColorMatch = Regex.Match(setFace, "ec:([a-f0-9]+)", RegexOptions.IgnoreCase);
+						if (eyeColorMatch.Success)
+							eyeColor = eyeColorMatch.Groups[1].Value;
+					}
 
-						if (eyeType.Contains('|'))
-							eyeType = eyeType.Replace('|', ',');
+					// Eye Type Set
+					if (setFace.Contains("et:"))
+					{
+						var eyeTypeMatch = Regex.Match(setFace, @"et:(.*? |.*?\))", RegexOptions.IgnoreCase);
+
+						if (eyeTypeMatch.Success)
+						{
+							eyeType = eyeTypeMatch.Groups[1].Value;
+							eyeType = eyeType.Trim("et: )".ToCharArray());
+
+							if (eyeType.Contains('|'))
+								eyeType = eyeType.Replace('|', ',');
+						}
+					}
+
+					// Mouth Type Set
+					if (setFace.Contains("mt:"))
+					{
+						var mouthTypeMatch = Regex.Match(setFace, @"mt:(.*? |.*?\))", RegexOptions.IgnoreCase);
+
+						if (mouthTypeMatch.Success)
+						{
+							mouthType = mouthTypeMatch.Groups[1].Value;
+							mouthType = mouthType.Trim("mt: )".ToCharArray());
+
+							if (mouthType.Contains('|'))
+								mouthType = mouthType.Replace('|', ',');
+						}
+					}
+
+					// Skin Color Set
+					if (setFace.Contains("sc:"))
+					{
+						var skinColorMatch = Regex.Match(setFace, @"sc:(.*? |.*?\))", RegexOptions.IgnoreCase);
+
+						if (skinColorMatch.Success)
+						{
+							skinColor = skinColorMatch.Groups[1].Value;
+							skinColor = skinColor.Trim("sc: )".ToCharArray());
+
+							if (skinColor.Contains('|'))
+								skinColor = skinColor.Replace('|', ',');
+						}
+					}
+
+					// Face Type Set - To be used in Equips
+					if (setFace.Contains("ft:"))
+					{
+						var faceTypeMatch = Regex.Match(setFace, @"ft:(.*? |.*?\))", RegexOptions.IgnoreCase);
+
+						if (faceTypeMatch.Success)
+						{
+							faceType = faceTypeMatch.Groups[1].Value;
+							faceType = faceType.Trim("mt: )".ToCharArray());
+
+							if (faceType.Contains('|'))
+								faceType = faceType.Replace('|', ',');
+						}
 					}
 				}
 
-				// Mouth Type Set
-				if (setFace.Contains("mt:"))
+				// Equipment
+				var equipMatches = Regex.Matches(firstCreateStript, @"additemex(.*?;)");
+				foreach (Match equipMatch in equipMatches)
 				{
-					var mouthTypeMatch = Regex.Match(setFace, @"mt:(.*? |.*?\))", RegexOptions.IgnoreCase);
-
-					if (mouthTypeMatch.Success)
+					if (equipMatch.Success)
 					{
-						mouthType = mouthTypeMatch.Groups[1].Value;
-						mouthType = mouthType.Trim("mt: )".ToCharArray());
+						// Get Raw Equip Data
+						var equipString = equipMatch.Groups[1].Value;
+						equipString = equipString.Replace("additemex", "");
 
-						if (mouthType.Contains('|'))
-							mouthType = mouthType.Replace('|', ',');
+						var itemString = "";
+						var color1String = "0x808080";
+						var color2String = "0x808080";
+						var color3String = "0x808080";
+						var pocketString = "";
+
+						// Item Id(s)
+						var itemMatch = Regex.Match(equipString, @"id:(.*? |.*?\))");
+						if (itemMatch.Success)
+						{
+							itemString = itemMatch.Groups[1].Value;
+							itemString = itemString.Replace("id:", "");
+
+							if (itemString.Contains('|'))
+							{
+								itemString = itemString.Replace('|', ',');
+								itemString = "[" + itemString + "]";
+							}
+						}
+
+						// Color1(s)
+						var color1Match = Regex.Match(equipString, @"col1:(.*? |.*?\))");
+						if (color1Match.Success)
+						{
+							color1String = color1Match.Groups[1].Value;
+							color1String = color1String.Replace("col1:", "");
+							color1String = "0x" + color1String;
+
+							if (color1String.Contains('|'))
+							{
+								color1String = color1String.Replace("|", ",0x");
+								color1String = "[" + color1String + "]";
+							}
+						}
+
+						// Color2(s)
+						var color2Match = Regex.Match(equipString, @"col2:(.*? |.*?\))");
+						if (color2Match.Success)
+						{
+							color2String = color2Match.Groups[1].Value;
+							color2String = color2String.Replace("col2:", "");
+							color2String = "0x" + color2String;
+
+							if (color2String.Contains('|'))
+							{
+								color2String = color2String.Replace("|", ",0x");
+								color2String = "[" + color2String + "]";
+							}
+						}
+
+						// Color3(s)
+						var color3Match = Regex.Match(equipString, @"col3:(.*? |.*?\))");
+						if (color3Match.Success)
+						{
+							color3String = color3Match.Groups[1].Value;
+							color3String = color2String.Replace("col3:", "");
+							color3String = "0x" + color3String;
+
+							if (color3String.Contains('|'))
+							{
+								color3String = color3String.Replace("|", ",0x");
+								color3String = "[" + color3String + "]";
+							}
+						}
+
+						// Pocket
+						var pocketMatch = Regex.Match(equipString, "pocket:([a-f0-9]+)");
+						if (pocketMatch.Success)
+						{
+							pocketString = pocketMatch.Groups[1].Value;
+							pocketString = pocketString.Replace("pocket:", "");
+						}
+
+						// Remove Spaces When Finished
+						itemString.Trim(' ');
+						color1String.Trim(' ');
+						color2String.Trim(' ');
+						color3String.Trim(' ');
+						pocketString.Trim(' ');
+
+						equip += "{itemId: " + itemString + ", pocket: " + pocketString + ", color1: " + color1String + ", color2: " + color2String + ", color3: " + color3String + "}, ";
 					}
 				}
 
-				// Skin Color Set
-				if (setFace.Contains("sc:"))
-				{
-					var skinColorMatch = Regex.Match(setFace, @"sc:(.*? |.*?\))", RegexOptions.IgnoreCase);
-
-					if (skinColorMatch.Success)
-					{
-						skinColor = skinColorMatch.Groups[1].Value;
-						skinColor = skinColor.Trim("sc: )".ToCharArray());
-
-						if (skinColor.Contains('|'))
-							skinColor = skinColor.Replace('|', ',');
-					}
-				}
-
-				// Face Type Set - To be used in Equips
-				if (setFace.Contains("ft:"))
-				{
-					var faceTypeMatch = Regex.Match(setFace, @"ft:(.*? |.*?\))", RegexOptions.IgnoreCase);
-
-					if (faceTypeMatch.Success)
-					{
-						faceType = faceTypeMatch.Groups[1].Value;
-						faceType = faceType.Trim("mt: )".ToCharArray());
-
-						if (faceType.Contains('|'))
-							faceType = faceType.Replace('|', ',');
-					}
-				}
+				// Apply Equipment Formatting if it existed
+				if (equip != "")
+					equip = "[" + equip + "]";
 
 				// Create String
 				var raceText = ("{ " +
@@ -385,8 +489,8 @@ namespace AuraRaceConverter
 					"elementIce: " + elementIce + ", " +
 					"exp: " + exp + ", " +
 					"goldMin: " + goldMin + ", " +
-					"goldMax: " + goldMax + " " +
-					"},");
+					"goldMax: " + goldMax + " "
+					);
 
 				// Optional Values
 				// Eye Color
@@ -421,6 +525,15 @@ namespace AuraRaceConverter
 					else // Singular version
 						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "skinColor: " + skinColor + ", ");
 				}
+
+				// Equipment
+				if (equip != "")
+				{
+					raceText += ", equip: " + equip + " ";
+				}
+
+				// Close Entry
+				raceText += "},";
 
 				lines.Add(raceText);
 
