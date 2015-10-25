@@ -350,7 +350,7 @@ namespace AuraRaceConverter
 						var color1String = "0x808080";
 						var color2String = "0x808080";
 						var color3String = "0x808080";
-						var pocketString = "";
+						var pocketString = "0";
 
 						// Item Id(s)
 						var itemMatch = Regex.Match(equipString, @"id:(.*? |.*?\))");
@@ -401,7 +401,7 @@ namespace AuraRaceConverter
 						if (color3Match.Success)
 						{
 							color3String = color3Match.Groups[1].Value;
-							color3String = color2String.Replace("col3:", "");
+							color3String = color3String.Replace("col3:", "");
 							color3String = "0x" + color3String;
 
 							if (color3String.Contains('|'))
@@ -419,12 +419,12 @@ namespace AuraRaceConverter
 							pocketString = pocketString.Replace("pocket:", "");
 						}
 
-						// Remove Spaces When Finished
-						itemString.Trim(' ');
-						color1String.Trim(' ');
-						color2String.Trim(' ');
-						color3String.Trim(' ');
-						pocketString.Trim(' ');
+						// Remove Extra Possible Characters When Finished
+						itemString = itemString.Trim(' ', '(', ')');
+						color1String = color1String.Trim(' ', '(', ')');
+						color2String = color2String.Trim(' ', '(', ')');
+						color3String = color3String.Trim(' ', '(', ')');
+						pocketString = pocketString.Trim(' ', '(', ')');
 
 						equip += "{itemId: " + itemString + ", pocket: " + pocketString + ", color1: " + color1String + ", color2: " + color2String + ", color3: " + color3String + "}, ";
 					}
@@ -435,7 +435,7 @@ namespace AuraRaceConverter
 					equip = "[" + equip + "]";
 
 				// Create String
-				var raceText = ("{ " +
+				var raceText = ("{" +
 					"id: " + id + ", " +
 					"name: " + inQuotes(name) + ", " +
 					"group: " + inQuotes(group) + ", " +
@@ -489,7 +489,7 @@ namespace AuraRaceConverter
 					"elementIce: " + elementIce + ", " +
 					"exp: " + exp + ", " +
 					"goldMin: " + goldMin + ", " +
-					"goldMax: " + goldMax + " "
+					"goldMax: " + goldMax + ""
 					);
 
 				// Optional Values
