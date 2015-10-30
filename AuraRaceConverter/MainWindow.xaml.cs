@@ -141,6 +141,7 @@ namespace AuraRaceConverter
 				var skinColor = "0";
 				var faceType = "0";
 				var equip = "";
+				var skills = "";
 				#endregion
 
 				// Skip Empty Value Line
@@ -436,9 +437,88 @@ namespace AuraRaceConverter
 					equip += "{itemId: " + faceType + ", pocket: 3, color1: " + skinColor + "}, ";
 				}
 
-				// Apply Equipment Formatting if it existed
-				if (equip != "")
-					equip = "[" + equip + "]";
+				// Skills
+				var skillMatches = Regex.Matches(firstCreateStript, @"setmonsterskill(.*?;)");
+				foreach (Match skillMatch in skillMatches)
+				{
+					// Get Raw Skill Data
+					var skillString = skillMatch.Groups[1].Value;
+					skillString = skillString.Replace("setmonsterskill", "");
+
+					var skillId = "";
+					var skillRank = "";
+
+					// Skill Id
+					var skillIdMatch = Regex.Match(skillString, @"(.*?([a-f0-9]+) |([a-f0-9]+)),");
+					if (skillIdMatch.Success)
+					{
+						skillId = skillIdMatch.Groups[1].Value;
+						skillId = skillId.Trim(',', ' ', '(');
+					}
+
+					// Skill Rank
+					var skillRankMatch = Regex.Match(skillString, @",(.*? ([a-f0-9]+)|([a-f0-9]+))");
+					if (skillRankMatch.Success)
+					{
+						skillRank = skillRankMatch.Groups[1].Value;
+						skillRank = skillRank.Trim(',', ' ', ')');
+
+						// Rank Values
+						switch (skillRank)
+						{
+							case "1":
+								skillRank = "F";
+								break;
+							case "2":
+								skillRank = "E";
+								break;
+							case "3":
+								skillRank = "D";
+								break;
+							case "4":
+								skillRank = "C";
+								break;
+							case "5":
+								skillRank = "B";
+								break;
+							case "6":
+								skillRank = "A";
+								break;
+							case "7":
+								skillRank = "9";
+								break;
+							case "8":
+								skillRank = "8";
+								break;
+							case "9":
+								skillRank = "7";
+								break;
+							case "10":
+								skillRank = "6";
+								break;
+							case "11":
+								skillRank = "5";
+								break;
+							case "12":
+								skillRank = "4";
+								break;
+							case "13":
+								skillRank = "3";
+								break;
+							case "14":
+								skillRank = "2";
+								break;
+							case "15":
+								skillRank = "1";
+								break;
+							default:
+								skillRank = "N";
+								break;
+						}
+					}
+
+					skills += "{skillId: " + skillId + ", rank: " + inQuotes(skillRank) + "}, ";
+				}
 
 				// Create String
 				var raceText = ("{" +
@@ -532,10 +612,16 @@ namespace AuraRaceConverter
 						raceText = raceText.Insert(sizeMaxIndex + sizeMaxString.Length, "skinColor: " + skinColor + ", ");
 				}
 
+				// Skills
+				if (skills != "")
+				{
+					raceText += ", skills: [" + skills + "] ";
+				}
+
 				// Equipment
 				if (equip != "")
 				{
-					raceText += ", equip: " + equip + " ";
+					raceText += ", equip: [" + equip + "] ";
 				}
 
 				// Close Entry
