@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Xml;
 using System.IO;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace AuraRaceConverter
 {
@@ -50,6 +51,9 @@ namespace AuraRaceConverter
 			XmlDocument monsterXML = new XmlDocument();
 			var monsterXMLPath = directory + "\\monster.xml";
 
+			// Get itemdroptype.json
+			var itemDropTypePath = directory + "\\itemdroptype.json";
+
 			try // Load XML files
 			{
 				raceXML.Load(raceXMLPath);
@@ -57,6 +61,15 @@ namespace AuraRaceConverter
 				monsterXML.Load(monsterXMLPath);
 			}
 			catch (Exception)
+			{
+				string errorMessage = string.Format("One or more of the required files could not be found.");
+				MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				successLabel.Content = "Failed";
+				return;
+			}
+
+			// check itemdroptype.json
+			if (!File.Exists(itemDropTypePath))
 			{
 				string errorMessage = string.Format("One or more of the required files could not be found.");
 				MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -519,6 +532,10 @@ namespace AuraRaceConverter
 
 					skills += "{skillId: " + skillId + ", rank: " + inQuotes(skillRank) + "}, ";
 				}
+
+				// Drops
+				var desRaceDrops = JsonConvert.DeserializeObject(File.ReadAllText(itemDropTypePath));
+				var raceDrops = JsonConvert.SerializeObject(desRaceDrops);
 
 				// Create String
 				var raceText = ("{" +
