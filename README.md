@@ -1,6 +1,6 @@
 auRace
 ==============================
-A race converter for aura.
+A race converter for aura, currently trash.
 
 File Requirements
 ------------------------------
